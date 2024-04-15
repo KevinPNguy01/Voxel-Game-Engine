@@ -1,0 +1,6 @@
+grass_block_side
+grass_block_side
+dirt
+moss_block
+grass_block_side
+grass_block_side

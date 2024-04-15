@@ -1,0 +1,6 @@
+﻿  main.cpp
+C:\Users\kevin\Documents\Minecraft Clone\src\main.cpp(27,25): warning C4244: 'argument': conversion from 'time_t' to 'int', possible loss of data
+C:\Users\kevin\Documents\Minecraft Clone\src\main.cpp(52,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\kevin\Documents\Minecraft Clone\src\main.cpp(80,41): warning C4305: '+=': truncation from 'double' to 'float'
+C:\Users\kevin\Documents\Minecraft Clone\src\main.cpp(90,41): warning C4305: '+=': truncation from 'double' to 'float'
+  Minecraft.vcxproj -> C:\Users\kevin\Documents\Minecraft Clone\x64\Debug\Minecraft Clone.exe
