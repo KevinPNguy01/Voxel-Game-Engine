@@ -58,6 +58,7 @@ void calculateAndPrintFPS() {
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
+    cam.aspect = (float) width / height;
 }
 
 void processInput(GLFWwindow* window) {
@@ -185,10 +186,11 @@ int main() {
         
 
         ourShader.use();
-
+        int width, height;
+        glfwGetWindowSize(window, &width, &height);
 
         glm::mat4 view = glm::lookAt(cam.pos, cam.pos + cam.forwardVec, glm::vec3(0.0, 1.0, 0.0));
-        glm::mat4 projection = glm::perspective(glm::radians(90.0f), 800.0f / 800.0f, 0.1f, 1000.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(90.0f), (float) width / height, 0.1f, 1000.0f);
         glm::mat4 cameraTransform = projection * view;
     
         int cameraTransformLoc = glGetUniformLocation(ourShader.ID, "cameraTransform");

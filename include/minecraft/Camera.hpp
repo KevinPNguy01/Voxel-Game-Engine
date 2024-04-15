@@ -2,6 +2,7 @@
 #define CAMERA
 
 #include <glm/glm.hpp>
+#include <GLFW/glfw3.h>
 #include "Chunk.hpp"
 
 struct Plane {
@@ -18,10 +19,10 @@ struct Frustum {
 class Camera {
 	Frustum frustum;
 
+public:
 	float aspect;
 	float fov;
 
-public:
 	glm::vec3 pos;
 	glm::vec3 forwardVec;
 	glm::vec3 upVec;
