@@ -21,7 +21,6 @@ GLuint createBlockVAO() {
     glVertexAttribDivisor(1, 1);
     glEnableVertexAttribArray(1);
 
-    GLuint textureArray;
     glGenTextures(1, &textureArray);
     glBindTexture(GL_TEXTURE_2D_ARRAY, textureArray);
     glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGB, 16, 16, 2048, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);

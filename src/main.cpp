@@ -17,7 +17,8 @@
 #include "OpenGLSetup/globals.hpp"
 #include "OpenGLSetup/block_vao.hpp"
 #include "OpenGLSetup/skybox_vao.hpp"
-
+#include "OpenGLSetup/gui_vao.hpp"
+#include "OpenGLSetup/block_icon_vao.hpp"
 
 // Global variables
 int frameCount = 0;
@@ -33,11 +34,19 @@ float lastX = 500, lastY = 500;
 float yaw = -90, pitch = 0;
 bool firstMouse = true;
 
+GLuint textureArray;
+
+unsigned int guiVBO;
+glm::vec4 guiArray[4];
+
 unsigned int instanceVBO;
 glm::ivec4 instanceArray[100000];
 
+unsigned int blockIconVBO;
+glm::ivec4 blockIconArray[256];
+
 unordered_map<std::string, unsigned short> blockMap{};
-short blockTextures[6][65535];
+unsigned short blockTextures[65535][6];
 unsigned short blockCount = 0;
 
 unordered_map<std::string, unsigned short> textureMap{};
@@ -159,13 +168,20 @@ int main() {
 
     Shader ourShader("shader/shader.vs", "shader/shader.fs");
     Shader skyBoxShader("shader/cubeMap.vs", "shader/cubeMap.fs");
+    Shader guiShader("shader/gui.vs", "shader/gui.fs");
+    Shader blockIconShader("shader/blockIcon.vs", "shader/blockIcon.fs");
     ourShader.use();
 
     
 
     unsigned int VAO = createBlockVAO();
-    glBindVertexArray(VAO);
     unsigned int skyboxVAO = createSkyboxVAO();
+    unsigned int guiVAO = createGuiVAO();
+    unsigned int blockIconVAO = createBlockIconVAO();
+
+    
+    glBindVertexArray(VAO);
+
 
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = (float) glfwGetTime();
@@ -188,6 +204,7 @@ int main() {
         ourShader.use();
         int width, height;
         glfwGetWindowSize(window, &width, &height);
+        
 
         glm::mat4 view = glm::lookAt(cam.pos, cam.pos + cam.forwardVec, glm::vec3(0.0, 1.0, 0.0));
         glm::mat4 projection = glm::perspective(glm::radians(90.0f), (float) width / height, 0.1f, 1000.0f);
@@ -214,9 +231,8 @@ int main() {
                 if (!cam.isVisible(block)) continue;
 
                 for (int i = 0; i < 6; ++i) {
-                    int y = (block.y() << 16) | blockTextures[blockMap[block.type]][i];
-                    
                     if (block.cullCoveredFace[i]) continue;
+                    int y = (block.y() << 16) | blockTextures[blockMap[block.type]][i];
                     int lighting = i / 2;
                     int data = (i << 8) | (lighting);
                     instanceArray[blockCount] = glm::ivec4{ block.x(), y, block.z(), data };
@@ -231,7 +247,6 @@ int main() {
         memcpy(ptr, instanceArray, blockCount * 4 * sizeof(int));
         glUnmapBuffer(GL_ARRAY_BUFFER);
 
-        glUniform1i(glGetUniformLocation(ourShader.ID, "textureArray"), 0);
         glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, blockCount);
 
         
@@ -248,6 +263,60 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
+
+
+        /*
+        glDepthMask(GL_FALSE);
+        glDepthFunc(GL_LEQUAL);
+        guiShader.use();
+        glBindVertexArray(guiVAO);
+
+        float aspect = 182.f / 22;
+        guiArray[0] = glm::vec4(-0.5, -1, 0, 22.f / 256);
+        guiArray[1] = glm::vec4(0.5, -1, 182.f / 256, 22.f / 256);
+        guiArray[2] = glm::vec4(0.5, -1 + 1 / aspect * width / height, 182.f / 256, 0);
+        guiArray[3] = glm::vec4(-0.5, -1 + 1 / aspect * width / height, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, guiVBO);
+        glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(int), 0, GL_STREAM_DRAW);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+        memcpy(ptr, guiArray, 16 * sizeof(int));
+        glUnmapBuffer(GL_ARRAY_BUFFER);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+
+        
+        glDisable(GL_CULL_FACE);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, textureArray);
+        glActiveTexture(GL_TEXTURE0);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        blockIconShader.use();
+        glBindVertexArray(blockIconVAO);
+
+        int blockIconCount = 1;
+        unsigned short *textures = blockTextures[(int)blockMap["grass_block"]];
+        blockIconArray[0] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], 3, 4);
+        glBindBuffer(GL_ARRAY_BUFFER, blockIconVBO);
+        glBufferData(GL_ARRAY_BUFFER, 256 * sizeof(int) * 4, 0, GL_STREAM_DRAW);
+        ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+        memcpy(ptr, blockIconArray, blockIconCount * 4 * sizeof(int));
+        glUnmapBuffer(GL_ARRAY_BUFFER);
+
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
+        glDrawArrays(GL_TRIANGLE_FAN, 8, 4);
+
+        glEnable(GL_CULL_FACE);
+
+        
+
+        glDepthMask(GL_TRUE);
+        glDepthFunc(GL_LESS);
+        */
 
 
         ++frameCount;
