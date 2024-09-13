@@ -40,12 +40,19 @@ void loadModels(std::string folderPath) {
     }
 }
 
+/* 
+* Load a block model from a .txt file.
+* Each line is the name of a .png texture file for a face of the block.
+* Faces are in the order -x, +x, -y, +y, -z, +z
+*/
 void loadModel(std::filesystem::directory_entry fileEntry) {
     std::ifstream file(fileEntry.path());
     if (!file.is_open()) {
         std::cerr << "Error opening file." << std::endl;
         return;
     }
+    
+    // Load each of the six faces of the block.
     std::string line;
     unsigned int fIndex = 0;
     while (std::getline(file, line) && fIndex < 6) {
@@ -54,9 +61,13 @@ void loadModel(std::filesystem::directory_entry fileEntry) {
         ++fIndex;
     }
     file.close();
-    blockMap[fileEntry.path().stem().string()] = blockCount++;
+
+    blockMap[fileEntry.path().stem().string()] = blockCount++;  // Increment the id for this block.
 }
 
+/*
+* Load a single texture from the given file name.
+*/
 void loadTexture(std::string fileName) {
     if (textureMap.contains(fileName)) return;
     int width, height, nrChannels;
@@ -65,7 +76,9 @@ void loadTexture(std::string fileName) {
         std::cerr << "Error loading image." << std::endl;
         return;
     }
+
+    // Store texture at the topmost slice of the 3D texture.
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, textureCount, 16, 16, 1, nrChannels == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, data);
     free(data);
-    textureMap[fileName] = textureCount++;
+    textureMap[fileName] = textureCount++;  // Increment the id for this texture.
 }
