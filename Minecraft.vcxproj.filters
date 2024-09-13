@@ -63,6 +63,12 @@
     <ClCompile Include="src\OpenGLSetup\skybox_vao.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\OpenGLSetup\gui_vao.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OpenGLSetup\block_icon_vao.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stb_image.h">
@@ -110,6 +116,12 @@
     <ClInclude Include="include\OpenGLSetup\skybox_vao.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\OpenGLSetup\gui_vao.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\OpenGLSetup\block_icon_vao.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\shader.vs">
@@ -120,6 +132,10 @@
     </None>
     <None Include="shader\cubeMap.vs" />
     <None Include="shader\cubeMap.fs" />
+    <None Include="shader\gui.fs" />
+    <None Include="shader\gui.vs" />
+    <None Include="shader\blockIcon.vs" />
+    <None Include="shader\blockIcon.fs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="rsrc\container.jpg">
@@ -132,6 +148,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="..\..\AppData\Roaming\.minecraft\versions\1.17\1.17\assets\minecraft\textures\block\diamond_block.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\AppData\Roaming\.minecraft\versions\1.17\1.17\assets\minecraft\textures\gui\widgets.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\Downloads\classicpack\assets\minecraft\textures\block\grass_block_top.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

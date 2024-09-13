@@ -1,6 +1,6 @@
 grass_block_side
 grass_block_side
 dirt
-moss_block
+grass_block_top
 grass_block_side
 grass_block_side

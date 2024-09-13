@@ -133,7 +133,9 @@
     <ClCompile Include="src\minecraft\Camera.cpp" />
     <ClCompile Include="src\minecraft\Chunk.cpp" />
     <ClCompile Include="src\minecraft\Level.cpp" />
+    <ClCompile Include="src\OpenGLSetup\block_icon_vao.cpp" />
     <ClCompile Include="src\OpenGLSetup\block_vao.cpp" />
+    <ClCompile Include="src\OpenGLSetup\gui_vao.cpp" />
     <ClCompile Include="src\OpenGLSetup\skybox_vao.cpp" />
     <ClCompile Include="src\shader_s.cpp" />
     <ClCompile Include="src\stdb_image.cpp" />
@@ -149,16 +151,22 @@
     <ClInclude Include="include\minecraft\Camera.hpp" />
     <ClInclude Include="include\minecraft\Chunk.hpp" />
     <ClInclude Include="include\minecraft\Level.hpp" />
+    <ClInclude Include="include\OpenGLSetup\block_icon_vao.hpp" />
     <ClInclude Include="include\OpenGLSetup\block_vao.hpp" />
     <ClInclude Include="include\OpenGLSetup\globals.hpp" />
+    <ClInclude Include="include\OpenGLSetup\gui_vao.hpp" />
     <ClInclude Include="include\OpenGLSetup\skybox_vao.hpp" />
     <ClInclude Include="include\shader_s.hpp" />
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\stb_image_write.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shader\blockIcon.fs" />
+    <None Include="shader\blockIcon.vs" />
     <None Include="shader\cubeMap.fs" />
     <None Include="shader\cubeMap.vs" />
+    <None Include="shader\gui.fs" />
+    <None Include="shader\gui.vs" />
     <None Include="shader\shader.fs" />
     <None Include="shader\shader.vs" />
   </ItemGroup>
@@ -166,6 +174,8 @@
     <Image Include="..\..\AppData\Roaming\.minecraft\versions\1.17\1.17\assets\minecraft\textures\block\diamond_block.png" />
     <Image Include="..\..\AppData\Roaming\.minecraft\versions\1.17\1.17\assets\minecraft\textures\block\grass_block_side.png" />
     <Image Include="..\..\AppData\Roaming\.minecraft\versions\1.17\1.17\assets\minecraft\textures\block\oak_log_top.png" />
+    <Image Include="..\..\AppData\Roaming\.minecraft\versions\1.17\1.17\assets\minecraft\textures\gui\widgets.png" />
+    <Image Include="..\..\Downloads\classicpack\assets\minecraft\textures\block\grass_block_top.png" />
     <Image Include="rsrc\container.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
