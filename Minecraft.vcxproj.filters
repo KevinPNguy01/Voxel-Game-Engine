@@ -156,5 +156,8 @@
     <Image Include="..\..\Downloads\classicpack\assets\minecraft\textures\block\grass_block_top.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="..\..\Minecraft\1.18 Forge\resourcepacks\Dramatic+Skys+Demo+1.4\assets\minecraft\optifine\sky\world0\cloud1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
