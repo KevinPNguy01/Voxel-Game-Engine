@@ -9,12 +9,14 @@ GLuint createBlockIconVAO() {
     glBindVertexArray(VAO);
 
     GLuint VBO;
+    // VBO for storing vertex indices for the icon.
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(GLuint), (void*)0);
     glEnableVertexAttribArray(0);
 
+    // VBO for storing texture indices.
     glGenBuffers(1, &blockIconVBO);
     glBindBuffer(GL_ARRAY_BUFFER, blockIconVBO);
     glBufferData(GL_ARRAY_BUFFER, 256 * sizeof(int) * 4, nullptr, GL_STREAM_DRAW);

@@ -193,8 +193,9 @@ int main() {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // Generate new chunks nearby.
         for (int x = -4; x < 5; ++x) {
-            for (int z = -5; z < 5; ++z) {
+            for (int z = -4; z < 5; ++z) {
                 glm::ivec2 chunkPos{ (int)floor(cam.pos[0] / 16) + x, (int)floor(cam.pos[2] / 16) + z};
                 if (!level.chunks.contains(chunkPos)) level.generateChunk(chunkPos);
             }
@@ -204,8 +205,9 @@ int main() {
         ourShader.use();
         int width, height;
         glfwGetWindowSize(window, &width, &height);
-        
+        float aspectRatio = (float) width / height;
 
+        // Render visible blocks.
         glm::mat4 view = glm::lookAt(cam.pos, cam.pos + cam.forwardVec, glm::vec3(0.0, 1.0, 0.0));
         glm::mat4 projection = glm::perspective(glm::radians(90.0f), (float) width / height, 0.1f, 1000.0f);
         glm::mat4 cameraTransform = projection * view;
@@ -214,27 +216,41 @@ int main() {
         glUniformMatrix4fv(cameraTransformLoc, 1, GL_FALSE, glm::value_ptr(cameraTransform));
 
         glBindVertexArray(VAO);
-        unsigned int blockCount = 0;
-        unsigned int totalBlocks = 0;
-        unsigned int chunkCount = 0;
-        unsigned int totalChunks = 0;
+        unsigned int blockCount = 0;    // Total blocks rendered.
+        unsigned int totalBlocks = 0;   // Total blocks checked.
+        unsigned int chunkCount = 0;    // Total chunks rendered.
+        unsigned int totalChunks = 0;   // Total chunks checked.
+        // Iterate through all chunks.
         for (auto const& pair1 : level.chunks) {
             const Chunk& chunk = pair1.second;
             ++totalChunks;
+
+            // Skip chunks that are out of viewing frustum, or too far.
             if (!cam.isVisible(chunk)) continue;
             if (abs(chunk.x - cam.pos[0] / 16) > 4 || abs(chunk.z - cam.pos[2] / 16) > 4) continue;
             ++chunkCount;
+
+            // Iterate through all blocks.
             for (auto const& pair2: chunk.blocks) {
-                ++totalBlocks;
                 const Block& block = pair2.second;
+                ++totalBlocks;
+
+                // Skip blocks that are out of viewing frustum, or covered on all sides.
                 if (block.cullCoveredFace.all()) continue;
                 if (!cam.isVisible(block)) continue;
 
+                // Iterate through all faces.
                 for (int i = 0; i < 6; ++i) {
+                    // Skip covered faces.
                     if (block.cullCoveredFace[i]) continue;
+
+                    // Pack y-level and texture id into a single integer.
                     int y = (block.y() << 16) | blockTextures[blockMap[block.type]][i];
+
+                    // Pack face index and lighting index into a single integer.
                     int lighting = i / 2;
                     int data = (i << 8) | (lighting);
+
                     instanceArray[blockCount] = glm::ivec4{ block.x(), y, block.z(), data };
                     ++blockCount;
                 }
@@ -246,11 +262,10 @@ int main() {
         void* ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
         memcpy(ptr, instanceArray, blockCount * 4 * sizeof(int));
         glUnmapBuffer(GL_ARRAY_BUFFER);
-
         glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, blockCount);
 
         
-
+        // Render skybox.
         glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);
         skyBoxShader.use();
@@ -265,17 +280,24 @@ int main() {
         glDepthFunc(GL_LESS);
 
 
-        /*
+        // GUI
+
+        // Hotbar
         glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);
         guiShader.use();
         glBindVertexArray(guiVAO);
 
-        float aspect = 182.f / 22;
-        guiArray[0] = glm::vec4(-0.5, -1, 0, 22.f / 256);
-        guiArray[1] = glm::vec4(0.5, -1, 182.f / 256, 22.f / 256);
-        guiArray[2] = glm::vec4(0.5, -1 + 1 / aspect * width / height, 182.f / 256, 0);
-        guiArray[3] = glm::vec4(-0.5, -1 + 1 / aspect * width / height, 0, 0);
+        float barAspect = 182.f / 22;
+        float barHeight = 22.f;
+        float barWidth = 182.f;
+        float slotSize = aspectRatio / (182.f / 20);
+
+        // Bar should take up half the width of the screen, rendered at the bottom.
+        guiArray[0] = glm::vec4(-0.5, -1, 0, barHeight / 256);
+        guiArray[1] = glm::vec4(0.5, -1, barWidth / 256, barHeight / 256);
+        guiArray[2] = glm::vec4(0.5, -1 + aspectRatio / barAspect, barWidth / 256, 0);
+        guiArray[3] = glm::vec4(-0.5, -1 + aspectRatio / barAspect, 0, 0);
 
         glBindBuffer(GL_ARRAY_BUFFER, guiVBO);
         glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(int), 0, GL_STREAM_DRAW);
@@ -294,29 +316,43 @@ int main() {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+        // Hotbar Icons
+        
         blockIconShader.use();
+        blockIconShader.setFloat("slotSize", slotSize/2);
+        blockIconShader.setFloat("aspectRatio", aspectRatio);
         glBindVertexArray(blockIconVAO);
 
-        int blockIconCount = 1;
+        int blockIconCount = 0;
         unsigned short *textures = blockTextures[(int)blockMap["grass_block"]];
-        blockIconArray[0] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], 3, 4);
+        blockIconArray[blockIconCount++] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], blockIconCount, 4);
+        textures = blockTextures[(int)blockMap["dirt"]];
+        blockIconArray[blockIconCount++] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], blockIconCount, 4);
+        textures = blockTextures[(int)blockMap["stone"]];
+        blockIconArray[blockIconCount++] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], blockIconCount, 4);
+        textures = blockTextures[(int)blockMap["oak_planks"]];
+        blockIconArray[blockIconCount++] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], blockIconCount, 4);
+        textures = blockTextures[(int)blockMap["oak_log"]];
+        blockIconArray[blockIconCount++] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], blockIconCount, 4);
+        textures = blockTextures[(int)blockMap["oak_leaves"]];
+        blockIconArray[blockIconCount++] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], blockIconCount, 4);
+        textures = blockTextures[(int)blockMap["diamond_block"]];
+        blockIconArray[blockIconCount++] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], blockIconCount, 4);
         glBindBuffer(GL_ARRAY_BUFFER, blockIconVBO);
-        glBufferData(GL_ARRAY_BUFFER, 256 * sizeof(int) * 4, 0, GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, blockIconCount * sizeof(int) * 4, 0, GL_STREAM_DRAW);
         ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
         memcpy(ptr, blockIconArray, blockIconCount * 4 * sizeof(int));
         glUnmapBuffer(GL_ARRAY_BUFFER);
 
-        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-        glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
-        glDrawArrays(GL_TRIANGLE_FAN, 8, 4);
+        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, blockIconCount);
+        glDrawArraysInstanced(GL_TRIANGLE_FAN, 4, 4, blockIconCount);
+        glDrawArraysInstanced(GL_TRIANGLE_FAN, 8, 4, blockIconCount);
+        
 
         glEnable(GL_CULL_FACE);
 
-        
-
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
-        */
 
 
         ++frameCount;
