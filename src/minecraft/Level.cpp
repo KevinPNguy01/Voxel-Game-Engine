@@ -14,7 +14,7 @@ void Level::generateChunk(glm::ivec2 chunkPos) {
     chunks.emplace( chunkPos, Chunk{chunkPos[0], chunkPos[1]} );
     Chunk& c = chunks.at(chunkPos);
 
-    //Generate generate column by column.
+    // Generate generate column by column.
     int x1{ chunkPos[0] * 16 }, x2{ x1 + 16 };
     int z1{ chunkPos[1] * 16 }, z2{ z1 + 16 };
     for (int x = x1; x < x2; ++x) {
@@ -35,11 +35,13 @@ void Level::generateChunk(glm::ivec2 chunkPos) {
         }
     }
 
+    // Update cull faces for every block in the chunk.
     for (int x = x1; x < x2; ++x) {
         for (int z = z1; z < z2; ++z) {
-            int y{ (int)(noise.GetNoise((float)x, (float)z) * 16) + 16 };
-            updateCoveredFaces({ x,0,z });
-            updateCoveredFaces({ x,y-1,z });
+            int y2{ (int)(noise.GetNoise((float)x, (float)z) * 16) + 16 };
+            for (int y = 0; y < y2; ++y) {
+                updateCoveredFaces({ x,y,z });
+            }
         }
     }
 }
