@@ -68,7 +68,7 @@ GLuint createSkyboxVAO() {
 
     // Load image data
     int width, height, nrChannels;
-    unsigned char* imageData = stbi_load("rsrc/starfield01.png", &width, &height, &nrChannels, 0);
+    unsigned char* imageData = stbi_load("rsrc/textures/sky/stars.png", &width, &height, &nrChannels, 0);
 
     // Set the parameters for selecting the sub-rectangle from the larger texture image
     int faceWidth = width / 3;

@@ -176,6 +176,7 @@
     <Image Include="..\..\AppData\Roaming\.minecraft\versions\1.17\1.17\assets\minecraft\textures\block\oak_log_top.png" />
     <Image Include="..\..\AppData\Roaming\.minecraft\versions\1.17\1.17\assets\minecraft\textures\gui\widgets.png" />
     <Image Include="..\..\Downloads\classicpack\assets\minecraft\textures\block\grass_block_top.png" />
+    <Image Include="..\..\Minecraft\1.18 Forge\resourcepacks\Dramatic+Skys+Demo+1.4\assets\minecraft\optifine\sky\world0\cloud1.png" />
     <Image Include="rsrc\container.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
