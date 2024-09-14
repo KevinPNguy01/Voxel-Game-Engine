@@ -16,6 +16,7 @@
 #include <unordered_map>
 #include <fstream>
 #include <tuple>
+#include <array>
 #include "OpenGLSetup/globals.hpp"
 #include "OpenGLSetup/block_vao.hpp"
 #include "OpenGLSetup/skybox_vao.hpp"
@@ -88,6 +89,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 }
 
 void processInput(GLFWwindow* window) {
+    // Movement keys.
     float cameraSpeed = 8 * deltaTime;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         cam.moveForward(cameraSpeed);
@@ -101,6 +103,13 @@ void processInput(GLFWwindow* window) {
         cam.moveVertical(cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
         cam.moveVertical(-cameraSpeed);
+
+    // Hotbar keys.
+    for (int key = GLFW_KEY_1; key <= GLFW_KEY_9; ++key) {
+        if (glfwGetKey(window, key) == GLFW_PRESS) {
+            player.selectedItemSlot = key - GLFW_KEY_1;
+        }
+    }
 }
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
@@ -119,13 +128,19 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             glm::ivec3 clickPos{ (int)floor(v[0]), (int)floor(v[1]), (int)floor(v[2]) };
             if (level.getBlockAt(clickPos)) {
                 v = glm::vec3{ cam.pos + cam.forwardVec * (i - .1f) };
-                level.addBlock(Block{ (int)floor(v[0]), (int)floor(v[1]), (int)floor(v[2]), "diamond_block" });
+                level.addBlock(Block{ (int)floor(v[0]), (int)floor(v[1]), (int)floor(v[2]), player.getHotbarItems()[player.selectedItemSlot]});
                 break;
             }
         }
     }
 }
 
+void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
+    player.selectedItemSlot = (player.selectedItemSlot - (int) yOffset) % 9;
+    if (player.selectedItemSlot < 0) {
+        player.selectedItemSlot += 9;
+    }
+}
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     float xPos{ (float) xpos }, yPos{ (float) ypos };
@@ -182,6 +197,7 @@ int main() {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetScrollCallback(window, scrollCallback);
 
     Shader ourShader("shader/shader.vs", "shader/shader.fs");
     Shader skyBoxShader("shader/cubeMap.vs", "shader/cubeMap.fs");
@@ -319,7 +335,7 @@ int main() {
 
 
         // Selected slot.
-        auto selectedSlotQuad = createQuadSized(-24.f * pixel / 2 - slotSize * 4, -1, 24 * pixel, 24 * pixel, 0, 22.f / 256, 24.f / 256, 24.f / 256);
+        auto selectedSlotQuad = createQuadSized(-24.f * pixel / 2 + (-4 + player.selectedItemSlot) * slotSize, -1, 24 * pixel, 24 * pixel, 0, 22.f / 256, 24.f / 256, 24.f / 256);
         guiArray[4] = std::get<0>(selectedSlotQuad);
         guiArray[5] = std::get<1>(selectedSlotQuad);
         guiArray[6] = std::get<2>(selectedSlotQuad);
@@ -352,27 +368,22 @@ int main() {
         blockIconShader.setFloat("aspectRatio", aspectRatio);
         glBindVertexArray(blockIconVAO);
 
-        int blockIconCount = 0;
-        unsigned short *textures = blockTextures[(int)blockMap["grass_block"]];
-        blockIconArray[blockIconCount++] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], blockIconCount, 4);
-        textures = blockTextures[(int)blockMap["dirt"]];
-        blockIconArray[blockIconCount++] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], blockIconCount, 4);
-        textures = blockTextures[(int)blockMap["stone"]];
-        blockIconArray[blockIconCount++] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], blockIconCount, 4);
-        textures = blockTextures[(int)blockMap["oak_planks"]];
-        blockIconArray[blockIconCount++] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], blockIconCount, 4);
-        textures = blockTextures[(int)blockMap["oak_log"]];
-        blockIconArray[blockIconCount++] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], blockIconCount, 4);
-        textures = blockTextures[(int)blockMap["oak_leaves"]];
-        blockIconArray[blockIconCount++] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], blockIconCount, 4);
-        textures = blockTextures[(int)blockMap["diamond_block"]];
-        blockIconArray[blockIconCount++] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], blockIconCount, 4);
+        // Render hotbar items.
+        std::array<string, 9> hotbarItems = player.getHotbarItems();
+        size_t blockIconCount;
+        for (blockIconCount = 0; blockIconCount < hotbarItems.size(); ++blockIconCount) {
+            string block = hotbarItems[blockIconCount];
+            unsigned short* textures = blockTextures[(int)blockMap[block]];
+            blockIconArray[blockIconCount] = glm::uvec4((textures[1] << 8) | textures[3], textures[5], blockIconCount, 4);
+        }
+
         glBindBuffer(GL_ARRAY_BUFFER, blockIconVBO);
         glBufferData(GL_ARRAY_BUFFER, blockIconCount * sizeof(int) * 4, 0, GL_STREAM_DRAW);
         ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
         memcpy(ptr, blockIconArray, blockIconCount * 4 * sizeof(int));
         glUnmapBuffer(GL_ARRAY_BUFFER);
 
+        // Render each of the three faces of each icon.
         glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, blockIconCount);
         glDrawArraysInstanced(GL_TRIANGLE_FAN, 4, 4, blockIconCount);
         glDrawArraysInstanced(GL_TRIANGLE_FAN, 8, 4, blockIconCount);
