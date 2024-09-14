@@ -14,11 +14,13 @@
 #include <string>
 #include <unordered_map>
 #include <fstream>
+#include <tuple>
 #include "OpenGLSetup/globals.hpp"
 #include "OpenGLSetup/block_vao.hpp"
 #include "OpenGLSetup/skybox_vao.hpp"
 #include "OpenGLSetup/gui_vao.hpp"
 #include "OpenGLSetup/block_icon_vao.hpp"
+
 
 // Global variables
 int frameCount = 0;
@@ -37,7 +39,7 @@ bool firstMouse = true;
 GLuint textureArray;
 
 unsigned int guiVBO;
-glm::vec4 guiArray[4];
+glm::vec4 guiArray[8];
 
 unsigned int instanceVBO;
 glm::ivec4 instanceArray[100000];
@@ -53,6 +55,19 @@ unordered_map<std::string, unsigned short> textureMap{};
 unsigned short textureCount = 0;
 
 unsigned int cubemapTexture;
+
+static std::tuple<glm::vec4, glm::vec4, glm::vec4, glm::vec4> createQuad(float x1, float y1, float x2, float y2, float u1, float v1, float u2, float v2) {
+    return {
+        glm::vec4(x1, y1, u1, v1),
+        glm::vec4(x2, y1, u2, v1),
+        glm::vec4(x2, y2, u2, v2),
+        glm::vec4(x1, y2, u1, v2)
+    };
+}
+
+static std::tuple<glm::vec4, glm::vec4, glm::vec4, glm::vec4> createQuadSized(float x, float y, float w, float h, float u, float v, float tw, float th) {
+    return createQuad(x, y, x + w, y + h, u, v + th, u + tw, v);
+}
 
 void calculateAndPrintFPS() {
     double currentTime = glfwGetTime();
@@ -282,31 +297,43 @@ int main() {
 
         // GUI
 
-        // Hotbar
         glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);
         guiShader.use();
         glBindVertexArray(guiVAO);
 
-        float barAspect = 182.f / 22;
-        float barHeight = 22.f;
-        float barWidth = 182.f;
+        // Hotbar.
+
         float slotSize = aspectRatio / (182.f / 20);
+        float pixel = 1.f / 182;
 
         // Bar should take up half the width of the screen, rendered at the bottom.
-        guiArray[0] = glm::vec4(-0.5, -1, 0, barHeight / 256);
-        guiArray[1] = glm::vec4(0.5, -1, barWidth / 256, barHeight / 256);
-        guiArray[2] = glm::vec4(0.5, -1 + aspectRatio / barAspect, barWidth / 256, 0);
-        guiArray[3] = glm::vec4(-0.5, -1 + aspectRatio / barAspect, 0, 0);
+
+        auto hotbarQuad = createQuadSized(-0.5, -1 + pixel, 182 * pixel, 22 * pixel, 0, 0, 182.f / 256, 22.f / 256);
+        guiArray[0] = std::get<0>(hotbarQuad);
+        guiArray[1] = std::get<1>(hotbarQuad);
+        guiArray[2] = std::get<2>(hotbarQuad);
+        guiArray[3] = std::get<3>(hotbarQuad);
+
+
+        // Selected slot.
+        auto selectedSlotQuad = createQuadSized(-24.f * pixel / 2 - slotSize * 4, -1, 24 * pixel, 24 * pixel, 0, 22.f / 256, 24.f / 256, 24.f / 256);
+        guiArray[4] = std::get<0>(selectedSlotQuad);
+        guiArray[5] = std::get<1>(selectedSlotQuad);
+        guiArray[6] = std::get<2>(selectedSlotQuad);
+        guiArray[7] = std::get<3>(selectedSlotQuad);
+
 
         glBindBuffer(GL_ARRAY_BUFFER, guiVBO);
-        glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(int), 0, GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 32 * sizeof(int), 0, GL_STREAM_DRAW);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-        memcpy(ptr, guiArray, 16 * sizeof(int));
+        memcpy(ptr, guiArray, 32 * sizeof(int));
         glUnmapBuffer(GL_ARRAY_BUFFER);
-        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // Draw one quad (hotbar)
+        glDrawArrays(GL_TRIANGLE_FAN, 4, 4); // Draw second quad (selected slot)
+
 
 
         

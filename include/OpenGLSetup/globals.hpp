@@ -6,7 +6,7 @@
 extern GLuint textureArray;
 
 extern unsigned int guiVBO;
-extern glm::vec4 guiArray[4];
+extern glm::vec4 guiArray[8];
 
 extern unsigned int instanceVBO;
 extern glm::ivec4 instanceArray[100000];
