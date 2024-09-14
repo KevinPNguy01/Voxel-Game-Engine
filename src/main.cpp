@@ -323,11 +323,12 @@ int main() {
         // Hotbar.
 
         float slotSize = aspectRatio / (182.f / 20);
-        float pixel = 1.f / 182;
+        float pixelX = 1.f / 182;
+        float pixelY = pixelX * aspectRatio;
 
         // Bar should take up half the width of the screen, rendered at the bottom.
 
-        auto hotbarQuad = createQuadSized(-0.5, -1 + pixel, 182 * pixel, 22 * pixel, 0, 0, 182.f / 256, 22.f / 256);
+        auto hotbarQuad = createQuadSized(-0.5, -1 + pixelY, 182 * pixelX, 22 * pixelY, 0, 0, 182.f / 256, 22.f / 256);
         guiArray[0] = std::get<0>(hotbarQuad);
         guiArray[1] = std::get<1>(hotbarQuad);
         guiArray[2] = std::get<2>(hotbarQuad);
@@ -335,14 +336,14 @@ int main() {
 
 
         // Selected slot.
-        auto selectedSlotQuad = createQuadSized(-24.f * pixel / 2 + (-4 + player.selectedItemSlot) * slotSize, -1, 24 * pixel, 24 * pixel, 0, 22.f / 256, 24.f / 256, 24.f / 256);
+        auto selectedSlotQuad = createQuadSized(-24.f * pixelX / 2 + (-4 + player.selectedItemSlot) * 20 * pixelX, -1, 24 * pixelX, 24 * pixelY, 0, 22.f / 256, 24.f / 256, 24.f / 256);
         guiArray[4] = std::get<0>(selectedSlotQuad);
         guiArray[5] = std::get<1>(selectedSlotQuad);
         guiArray[6] = std::get<2>(selectedSlotQuad);
         guiArray[7] = std::get<3>(selectedSlotQuad);
 
         // Crosshair.
-        auto crosshairQuad = createQuadSized(-9 * pixel / 2, -9 * pixel / 2, 9 * pixel, 9 * pixel, 243.f / 256, 3.f / 256, 9.f / 256, 9.f / 256);
+        auto crosshairQuad = createQuadSized(-9 * pixelX / 2, -9 * pixelY / 2, 9 * pixelX, 9 * pixelY, 243.f / 256, 3.f / 256, 9.f / 256, 9.f / 256);
         guiArray[8] = std::get<0>(crosshairQuad);
         guiArray[9] = std::get<1>(crosshairQuad);
         guiArray[10] = std::get<2>(crosshairQuad);
