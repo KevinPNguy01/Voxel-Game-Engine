@@ -3,6 +3,7 @@
 #include <iostream>
 #include "shader_s.hpp"
 #include "minecraft/camera.hpp"
+#include "minecraft/player.hpp"
 #include "stb_image.h"
 #include "stb_image_write.h"
 #include <glm/glm.hpp>
@@ -26,7 +27,8 @@
 int frameCount = 0;
 double previousTime = 0;
 
-Camera cam = Camera();
+Player player = Player();
+Camera cam = player.getCamera();
 Level level = Level(time(nullptr));
 
 float deltaTime = 0.0f; // Time between current frame and last frame
