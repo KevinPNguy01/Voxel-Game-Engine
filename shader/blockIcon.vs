@@ -25,7 +25,7 @@ const float brightnesses[] = float[3](0.75, 1, 0.5);
 void main()
 {
     vec2 vertex = vertices[(vIndex % 4 == 0) ? 0 : vIndex/4*3 + vIndex%4] * vec2(slotSize/aspectRatio, slotSize) * 0.85;
-    vertex.y -= 1 - slotSize*1.1;
+    vertex.y -= 1 - slotSize*1.1 - 1.f/182;
     vertex.x += (-4+translation.z)*2*slotSize/aspectRatio;
     uvec3 textures = uvec3(translation.x >> 8, translation.x & 0xFF, translation.y);
 
