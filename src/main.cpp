@@ -42,7 +42,7 @@ bool firstMouse = true;
 GLuint textureArray;
 
 unsigned int guiVBO;
-glm::vec4 guiArray[8];
+glm::vec4 guiArray[256];
 
 unsigned int instanceVBO;
 glm::ivec4 instanceArray[100000];
@@ -341,20 +341,24 @@ int main() {
         guiArray[6] = std::get<2>(selectedSlotQuad);
         guiArray[7] = std::get<3>(selectedSlotQuad);
 
+        // Crosshair.
+        auto crosshairQuad = createQuadSized(-9 * pixel / 2, -9 * pixel / 2, 9 * pixel, 9 * pixel, 243.f / 256, 3.f / 256, 9.f / 256, 9.f / 256);
+        guiArray[8] = std::get<0>(crosshairQuad);
+        guiArray[9] = std::get<1>(crosshairQuad);
+        guiArray[10] = std::get<2>(crosshairQuad);
+        guiArray[11] = std::get<3>(crosshairQuad);
 
         glBindBuffer(GL_ARRAY_BUFFER, guiVBO);
-        glBufferData(GL_ARRAY_BUFFER, 32 * sizeof(int), 0, GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 48 * sizeof(int), 0, GL_STREAM_DRAW);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-        memcpy(ptr, guiArray, 32 * sizeof(int));
+        memcpy(ptr, guiArray, 48 * sizeof(int));
         glUnmapBuffer(GL_ARRAY_BUFFER);
-        glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // Draw one quad (hotbar)
-        glDrawArrays(GL_TRIANGLE_FAN, 4, 4); // Draw second quad (selected slot)
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // Draw hotbar
+        glDrawArrays(GL_TRIANGLE_FAN, 4, 4); // Draw selected slot
+        glDrawArrays(GL_TRIANGLE_FAN, 8, 4); // Draw crosshair
 
-
-
-        
         glDisable(GL_CULL_FACE);
         glBindTexture(GL_TEXTURE_2D_ARRAY, textureArray);
         glActiveTexture(GL_TEXTURE0);
