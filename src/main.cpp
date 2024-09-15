@@ -136,9 +136,24 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 }
 
 void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
-    player.selectedItemSlot = (player.selectedItemSlot - (int) yOffset) % 9;
-    if (player.selectedItemSlot < 0) {
-        player.selectedItemSlot += 9;
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+        // Hold control while scrolling to cycle through the available block times in the current selected slot.
+        int blockId = (blockMap[player.getHotbarItems()[player.selectedItemSlot]] - (int)yOffset) % blockCount;
+        if (blockId < 0) {
+            blockId += blockCount;
+        }
+        string block = "diamond_block";
+        for (auto it = blockMap.begin(); it != blockMap.end(); ++it) {
+            if (it->second == blockId) {
+                player.getHotbarItems()[player.selectedItemSlot] = it->first;
+            }
+        }
+    } else {
+        // Otherwise, scroll through the hotbar slots.
+        player.selectedItemSlot = (player.selectedItemSlot - (int) yOffset) % 9;
+        if (player.selectedItemSlot < 0) {
+            player.selectedItemSlot += 9;
+        }
     }
 }
 
@@ -281,7 +296,7 @@ int main() {
                     int y = (block.y() << 16) | blockTextures[blockMap[block.type]][i];
 
                     // Pack face index and lighting index into a single integer.
-                    int lighting = i / 2;
+                    int lighting = i;
                     int data = (i << 8) | (lighting);
 
                     instanceArray[blockCount] = glm::ivec4{ block.x(), y, block.z(), data };
