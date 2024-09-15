@@ -1,0 +1,6 @@
+crafting_table_side
+crafting_table_side
+crafting_table_top
+crafting_table_top
+crafting_table_front
+crafting_table_front

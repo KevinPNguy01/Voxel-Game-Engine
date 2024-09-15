@@ -1,0 +1,6 @@
+dirt_path_side
+dirt_path_side
+dirt
+dirt_path_top
+dirt_path_side
+dirt_path_side

@@ -1,0 +1,6 @@
+barrel_side
+barrel_side
+barrel_bottom
+barrel_top
+barrel_side
+barrel_side
