@@ -11,6 +11,6 @@ Camera Player::getCamera() {
 	return cam;
 }
 
-std::array<std::string, 9> Player::getHotbarItems() {
+std::array<std::string, 9>& Player::getHotbarItems() {
 	return hotbarItems;
 }

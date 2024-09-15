@@ -13,6 +13,6 @@ public:
 
 	Camera getCamera();
 
-	std::array<std::string, 9> getHotbarItems();
+	std::array<std::string, 9>& getHotbarItems();
 };
 

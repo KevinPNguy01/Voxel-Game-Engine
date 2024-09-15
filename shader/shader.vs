@@ -7,9 +7,12 @@ out vec3 TexCoord;
 
 uniform mat4 cameraTransform;
 
-const vec4 lightValues[] = vec4[3](
+const vec4 lightValues[] = vec4[6](
 	vec4(0.85,0.85,0.85,1),
+	vec4(0.85,0.85,0.85,1),
+	vec4(0.55,0.55,0.55,1),
 	vec4(1,1,1,1),
+	vec4(0.7,0.7,0.7,1),
 	vec4(0.7,0.7,0.7,1)
 );
 
